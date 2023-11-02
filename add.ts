@@ -3,7 +3,7 @@
 import * as fs from "https://deno.land/std@0.205.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.205.0/path/mod.ts";
 import * as assert from "https://deno.land/std@0.205.0/assert/mod.ts";
-import { symlinkAll } from "./shared.ts";
+import { moveToBackup, symlinkAll } from "./shared.ts";
 
 const cwd = Deno.cwd();
 assert.assertEquals(
@@ -18,17 +18,16 @@ assert.assertEquals(
 );
 
 const [targetPath] = Deno.args;
+assert.assert(fs.existsSync(targetPath), `${targetPath} does not exist.`);
+const stat = Deno.statSync(targetPath);
+assert.assert(
+  stat.isFile || stat.isDirectory,
+  `${targetPath} is not a file nor a directory!`
+);
 const currentDate = new Date().toISOString();
 const backupDir = path.join(cwd, `.backups/add-${currentDate}`);
 const rootDir = path.join(cwd, `root`);
 const rootPath = path.join(rootDir, targetPath);
-
-function moveToBackup(src: string): void {
-  assert.assert(src.startsWith(rootDir));
-  const targetBackupPath = path.join(backupDir, src.substring(rootDir.length));
-  fs.ensureFileSync(targetBackupPath);
-  fs.moveSync(src, targetBackupPath, { overwrite: true });
-}
 
 let safe = true;
 
@@ -38,12 +37,13 @@ if (fs.existsSync(rootPath)) {
     `${rootPath} exists. Are you sure to replace it? (it will be moved to ${backupDir})`
   );
   if (result) {
-    moveToBackup(targetPath);
+    moveToBackup(backupDir, rootPath);
   } else {
     safe = false;
   }
 }
 if (safe) {
+  fs.ensureDirSync(path.dirname(rootPath));
   fs.moveSync(targetPath, rootPath);
-  symlinkAll(rootDir, rootPath, { fn: moveToBackup, dir: backupDir });
+  symlinkAll(rootDir, rootPath, backupDir);
 }

@@ -15,11 +15,5 @@ const currentDate = new Date().toISOString();
 const backupDir = path.join(cwd, `.backups/install-${currentDate}`);
 const rootDir = path.join(cwd, `root`);
 
-function moveToBackup(src: string): void {
-  const targetBackupPath = path.join(backupDir, src);
-  fs.ensureFileSync(targetBackupPath);
-  fs.moveSync(src, targetBackupPath, { overwrite: true });
-}
-
 fs.ensureDirSync(rootDir);
-symlinkAll(rootDir, rootDir, { fn: moveToBackup, dir: backupDir });
+symlinkAll(rootDir, rootDir, backupDir);
