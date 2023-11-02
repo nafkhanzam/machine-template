@@ -14,12 +14,26 @@ fs.ensureDirSync(rootDir);
 Deno.test(
   `should add existing root file and not existing repository file`,
   () => {
+    //? Prepare
     const fileName = `.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
-    const repoPath = path.join(rootDir, fileName);
-    assert(!fs.existsSync(repoPath));
+    const repoPath = path.join(rootDir, machinePath);
     fs.ensureFileSync(machinePath);
+    Deno.writeTextFileSync(machinePath, `test-content`);
+
+    //? Before
+    const statBefore = Deno.lstatSync(machinePath);
+    assert(statBefore.isFile);
+    assert(!fs.existsSync(repoPath));
+
+    //? Action
     add(machinePath);
+
+    //? After
+    const statAfter = Deno.lstatSync(machinePath);
+    assert(statAfter.isSymlink);
     assert(fs.existsSync(repoPath));
+    const stat = Deno.lstatSync(repoPath);
+    assert(stat.isFile);
   }
 );
