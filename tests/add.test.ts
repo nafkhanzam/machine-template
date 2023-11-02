@@ -2,7 +2,7 @@ import * as fs from "https://deno.land/std@0.205.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.205.0/path/mod.ts";
 import { TEST_ENV_DIR } from "./shared.ts";
 import { assert } from "https://deno.land/std@0.205.0/assert/assert.ts";
-import { add } from "../add-func.ts";
+import { add } from "../scripts/add-func.ts";
 
 const rootDirName = `root`;
 fs.emptyDirSync(TEST_ENV_DIR);

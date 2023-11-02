@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-deno run -A install.ts
+deno run -A scripts/install.ts
