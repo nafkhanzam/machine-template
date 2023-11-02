@@ -1,0 +1,3 @@
+#!/bin/bash -e
+
+deno test --allow-read=./.test-env --allow-write=./.test-env --allow-env=ROOT
