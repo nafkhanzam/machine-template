@@ -40,6 +40,7 @@ Deno.test(
     //? After
     const statAfter = Deno.lstatSync(machinePath);
     assert(statAfter.isSymlink);
+    assertEquals(Deno.readLinkSync(machinePath), repoPath);
     assert(fs.existsSync(repoPath));
     const stat = Deno.lstatSync(repoPath);
     assert(stat.isFile);
@@ -93,7 +94,7 @@ Deno.test(
     //? After
     const statAfter = Deno.lstatSync(machinePath);
     assert(statAfter.isSymlink);
-    assert(fs.existsSync(repoPath));
+    assertEquals(Deno.readLinkSync(machinePath), repoPath);
     const stat = Deno.lstatSync(repoPath);
     assert(stat.isFile);
     assertEquals(Deno.readTextFileSync(repoPath), `test-content`);
