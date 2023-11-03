@@ -7,11 +7,6 @@ import { symlinkAll } from "./shared.ts";
 
 export function install(): void {
   const cwd = Deno.cwd();
-  assert.assertEquals(
-    cwd,
-    path.resolve(path.dirname(path.fromFileUrl(import.meta.url))),
-    `You have to run in the same working directory as the install script!`
-  );
   const currentDate = new Date().toISOString();
   const backupDir = path.join(cwd, `.backups/install-${currentDate}`);
 
