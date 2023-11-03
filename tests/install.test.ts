@@ -4,22 +4,17 @@ import * as fs from "https://deno.land/std@0.205.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.205.0/path/mod.ts";
 import { stub } from "https://deno.land/std@0.205.0/testing/mock.ts";
 import { install } from "../scripts/install-func.ts";
-import { TEST_ENV_DIR } from "./shared.ts";
+import { init, cleanup } from "./shared.ts";
+
+init();
 
 const rootDirName = `root`;
-fs.emptyDirSync(TEST_ENV_DIR);
-Deno.chdir(TEST_ENV_DIR);
 const cwd = Deno.cwd();
 const rootDir = path.join(cwd, rootDirName);
 
-function cleanup(): void {
-  fs.emptyDirSync(`.`);
-  fs.ensureDirSync(rootDir);
-}
-
 Deno.test(`should add a symlink on non-existing machine file`, () => {
   //? Prepare
-  cleanup();
+  cleanup(rootDir);
   const fileName = `nested/1/a/.test-dotfile`;
   const machinePath = path.join(cwd, fileName);
   const repoPath = path.join(rootDir, machinePath);
@@ -47,7 +42,7 @@ Deno.test(
   `should not add a symlink on existing machine file with no response`,
   () => {
     //? Prepare
-    cleanup();
+    cleanup(rootDir);
     const fileName = `nested/1/a/.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
     const repoPath = path.join(rootDir, machinePath);
@@ -77,7 +72,7 @@ Deno.test(
   `should add a symlink on existing machine file with yes response`,
   () => {
     //? Prepare
-    cleanup();
+    cleanup(rootDir);
     const fileName = `nested/1/a/.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
     const repoPath = path.join(rootDir, machinePath);

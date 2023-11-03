@@ -1,28 +1,23 @@
 import * as fs from "https://deno.land/std@0.205.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.205.0/path/mod.ts";
-import { TEST_ENV_DIR } from "./shared.ts";
+import { init, cleanup } from "./shared.ts";
 import { assert } from "https://deno.land/std@0.205.0/assert/assert.ts";
 import { add } from "../scripts/add-func.ts";
 import { assertThrows } from "https://deno.land/std@0.205.0/assert/assert_throws.ts";
 import { stub } from "https://deno.land/std@0.205.0/testing/mock.ts";
 import { assertEquals } from "https://deno.land/std@0.205.0/assert/assert_equals.ts";
 
+init();
+
 const rootDirName = `root`;
-fs.emptyDirSync(TEST_ENV_DIR);
-Deno.chdir(TEST_ENV_DIR);
 const cwd = Deno.cwd();
 const rootDir = path.join(cwd, rootDirName);
-
-function cleanup(): void {
-  fs.emptyDirSync(`.`);
-  fs.ensureDirSync(rootDir);
-}
 
 Deno.test(
   `should add existing machine file and not existing repository file`,
   () => {
     //? Prepare
-    cleanup();
+    cleanup(rootDir);
     const fileName = `nested/1/a/.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
     const repoPath = path.join(rootDir, machinePath);
@@ -49,7 +44,7 @@ Deno.test(
 
 Deno.test(`should not add non-existing machine file`, () => {
   //? Prepare
-  cleanup();
+  cleanup(rootDir);
   const fileName = `nested/1/a/.test-dotfile`;
   const machinePath = path.join(cwd, fileName);
   const repoPath = path.join(rootDir, machinePath);
@@ -70,7 +65,7 @@ Deno.test(
   `should replace machine file to exisiting repo file yes response`,
   () => {
     //? Prepare
-    cleanup();
+    cleanup(rootDir);
     const fileName = `nested/1/a/.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
     const repoPath = path.join(rootDir, machinePath);
@@ -105,7 +100,7 @@ Deno.test(
   `should not replace machine file to exisiting repo file on no response`,
   () => {
     //? Prepare
-    cleanup();
+    cleanup(rootDir);
     const fileName = `nested/1/a/.test-dotfile`;
     const machinePath = path.join(cwd, fileName);
     const repoPath = path.join(rootDir, machinePath);
@@ -136,3 +131,28 @@ Deno.test(
     assertEquals(Deno.readTextFileSync(repoPath), `test-content-in-repo`);
   }
 );
+
+Deno.test(`should not add symlink machine file`, () => {
+  //? Prepare
+  cleanup(rootDir);
+  const fileName = `nested/1/a/.test-dotfile`;
+  const targetFileName = `nested/1/a/.test-dotfile-target`;
+  const machinePath = path.join(cwd, fileName);
+  const targetPath = path.join(cwd, targetFileName);
+  const repoPath = path.join(rootDir, machinePath);
+
+  fs.ensureDirSync(path.dirname(targetPath));
+  Deno.writeTextFileSync(targetPath, `content`);
+  Deno.symlinkSync(targetPath, machinePath);
+
+  //? Before
+  assert(!fs.existsSync(repoPath));
+  assert(Deno.lstatSync(machinePath).isSymlink);
+
+  //? Action
+  assertThrows(() => add(machinePath));
+
+  //? After
+  assert(!fs.existsSync(repoPath));
+  assert(Deno.lstatSync(machinePath).isSymlink);
+});

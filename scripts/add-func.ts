@@ -7,7 +7,7 @@ export function add(targetPath: string): void {
   const cwd = Deno.cwd();
 
   assert.assert(fs.existsSync(targetPath), `${targetPath} does not exist.`);
-  const stat = Deno.statSync(targetPath);
+  const stat = Deno.lstatSync(targetPath);
   assert.assert(
     stat.isFile || stat.isDirectory,
     `${targetPath} is not a file nor a directory!`
