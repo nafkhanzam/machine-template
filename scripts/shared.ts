@@ -15,7 +15,7 @@ export function lexistsSync(filePath: string) {
 export function moveToBackup(backupDir: string, src: string): void {
   const targetBackupPath = path.join(backupDir, src);
   fs.ensureDirSync(path.dirname(targetBackupPath));
-  fs.moveSync(src, targetBackupPath, { overwrite: true });
+  Deno.renameSync(src, targetBackupPath);
 }
 
 function symlinkFile(rootDir: string, filePath: string, backupDir: string) {

@@ -34,7 +34,7 @@ export function add(targetPath: string): void {
   }
   if (safe) {
     fs.ensureDirSync(path.dirname(rootPath));
-    fs.moveSync(targetPath, rootPath);
+    Deno.renameSync(targetPath, rootPath);
     symlinkAll(rootDir, rootPath, backupDir);
   }
 }
