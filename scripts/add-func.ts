@@ -1,7 +1,7 @@
 import * as fs from "https://deno.land/std@0.205.0/fs/mod.ts";
 import * as path from "https://deno.land/std@0.205.0/path/mod.ts";
 import * as assert from "https://deno.land/std@0.205.0/assert/mod.ts";
-import { moveToBackup, symlinkAll } from "./shared.ts";
+import { lexistsSync, moveToBackup, symlinkAll } from "./shared.ts";
 
 export function add(targetPath: string): void {
   const cwd = Deno.cwd();
@@ -10,7 +10,7 @@ export function add(targetPath: string): void {
   const stat = Deno.lstatSync(targetPath);
   assert.assert(
     stat.isFile || stat.isDirectory,
-    `${targetPath} is not a file nor a directory!`
+    `${targetPath} is not a file nor a directory!`,
   );
   const currentDate = new Date().toISOString();
   const backupDir = path.join(cwd, `.backups/add-${currentDate}`);
@@ -22,9 +22,9 @@ export function add(targetPath: string): void {
   let safe = true;
 
   fs.ensureDirSync(rootDir);
-  if (fs.existsSync(rootPath)) {
+  if (lexistsSync(rootPath)) {
     const result = confirm(
-      `${rootPath} exists. Are you sure to replace it? (it will be moved to ${backupDir})`
+      `${rootPath} exists. Are you sure to replace it? (it will be moved to ${backupDir})`,
     );
     if (result) {
       moveToBackup(backupDir, rootPath);
