@@ -2,6 +2,7 @@
 
 ## Installation
 
+Make sure to install [Deno](https://docs.deno.com/runtime/manual/getting_started/installation) first.
 This repository can be used in two ways.
 
 ### \#1. Using this repository as a template
